@@ -42,7 +42,8 @@ def message_cb(bot, event):
         project_name = event.text
         bot.send_text(event.from_chat, random.choice(texts.MESSAGE_WAITING))
         sleep(1)
-        bot.send_text(event.from_chat, rasklad(project_name))
+        bot.send_text(event.from_chat, rasklad(project_name),
+                      inline_keyboard_markup="[{}]".format(json.dumps(texts.AFTER_RASKLAD_KEYBOARD)))
         del user_state[event.message_author["userId"]]
         return
 
@@ -59,6 +60,7 @@ def buttons_answer_cb(bot, event):
             bot.send_text(
                 chat_id=event.data["message"]["chat"]["chatId"],
                 text=format_message(texts.ABOUT_MESSAGE, event),
+                inline_keyboard_markup="[{}]".format(json.dumps(texts.ABOUT_KEYBOARD)),
             )
         case "rasklad":
             bot.send_text(
@@ -66,6 +68,12 @@ def buttons_answer_cb(bot, event):
                 text=format_message(texts.ASK_PROJECT_NAME, event),
             )
             user_state[event.message_author] = "wait_project_name"
+        case "thanks":
+            bot.send_text(
+                chat_id=event.data["message"]["chat"]["chatId"],
+                text=format_message(texts.UR_WELCOME, event),
+                inline_keyboard_markup="[{}]".format(json.dumps(texts.ABOUT_KEYBOARD)),
+            )
 
 
 bot.dispatcher.add_handler(MessageHandler(callback=message_cb))

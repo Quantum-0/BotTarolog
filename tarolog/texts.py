@@ -13,6 +13,9 @@ HELLO_KEYBOARD = [
     {"text": "Подробнее о боте", "callbackData": "about"},
     {"text": "Сделать расклад", "callbackData": "rasklad"},
 ]
+ABOUT_KEYBOARD = [
+    {"text": "Сделать расклад", "callbackData": "rasklad"},
+]
 ASK_PROJECT_NAME = "Подскажи название своего проекта, чтобы я смог сделать расклад карт."
 MESSAGE_WAITING = ["Перемешиваю карты..", "Заглядываю в будущее..", "Делаю расклад..", "TODO: More"]
 RASKLAD_RESULTS = [
@@ -21,7 +24,12 @@ RASKLAD_RESULTS = [
     "сегодня не самый удачный день для деплоя",
     "TODO: больше ответов",
 ]
+AFTER_RASKLAD_KEYBOARD = [
+    {"text": "Узнать результат для другого проекта", "callbackData": "rasklad"},
+    {"text": "Спасибо!", "callbackData": "thanks"},
+]
 MESSAGE_DEFAULT = (
     "Простите, я вас не поняль\n Кажется что-то пошло не так :<\n"
     "Используйте команду /start чтобы вернуться в основное меню"
 )
+UR_WELCOME = "Всегда пожалуйста! Удачных релизов <3"
