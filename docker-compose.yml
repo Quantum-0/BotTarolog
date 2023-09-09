@@ -4,5 +4,5 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    environment:
-      - TOKEN=''
+    env_file:
+      - .env
