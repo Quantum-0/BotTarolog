@@ -1,0 +1,8 @@
+services:
+  bot:
+    container_name: 'TarologBot'
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - TOKEN=''

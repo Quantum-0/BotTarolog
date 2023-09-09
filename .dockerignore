@@ -1,0 +1,11 @@
+.git/
+.venv/
+.mypy_cache/
+try/
+
+*__pycache__*
+*.swo
+*.swp
+*.pyo
+*.pyc
+*.so

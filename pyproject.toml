@@ -1,0 +1,66 @@
+[build-system]
+requires = ['hatchling']
+build-backend = 'hatchling.build'
+
+[tool.hatch.version]
+path = "tarolog/__init__.py"
+
+[tool.hatch.build.targets.sdist]
+include = ["tarolog"]
+
+[project]
+name = "tarolog"
+requires-python = ">=3.11"
+dynamic = ["version"]
+dependencies = [
+    "mailru-im-bot==0.0.21",
+]
+
+[project.optional-dependencies]
+test = [
+    "black",
+    "ruff",
+]
+dev = [
+    "ipython",
+]
+
+[project.scripts]
+tarolog-bot = "tarolog.main:start_bot"
+
+[tool.black]
+line-length = 120
+target-version = ['py311']
+
+[tool.ruff]
+line-length = 120
+target-version = "py311"
+exclude = [".venv", "tests", "patched_aiopg.py"]
+select = [
+    "ANN001",
+    "ANN201",
+    "ANN202",
+    "ANN204",
+    "C",
+    "E",
+    "ERA",
+    "F",
+    "W",
+    "N",
+    "B",
+    "UP",
+    "PD",
+    "C90",
+    "FBT",
+    "COM",
+    "PIE",
+    "PLC",
+    "PLE",
+    "PLR",
+    "PLW",
+    "RSE102",
+    "RET",
+    "NPY",
+    "RUF",
+    "SIM",
+]
