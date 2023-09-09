@@ -1,7 +1,9 @@
+import datetime
 import json
 import os
 import random
 from time import sleep
+from hashlib import md5 as taro
 
 from bot.bot import Bot
 from bot.handler import BotButtonCommandHandler, MessageHandler
@@ -9,14 +11,16 @@ from bot.handler import BotButtonCommandHandler, MessageHandler
 from tarolog import texts
 
 bot = Bot(token=os.environ.get("TOKEN"), api_url_base=os.environ.get("API_BASE_URL"), is_myteam=True)
-
+SALT = os.environ.get("SALT", 'SOME_DEFAULT_SALT_VALUE')
 user_state: dict[int, str] = {}
 
 
 def rasklad(project_name: str) -> str:
     result = random.choice(["Карты говорят мне", "Вижу по картам", "Карты подсказали мне"])
     result += ", что "
-    result += random.choice(texts.RASKLAD_RESULTS).format(PROJECT_NAME=project_name)
+    randomized_value = int(taro((SALT + project_name + str(datetime.date.today())).encode('utf-8', errors='replace')).hexdigest(), 16)
+    result += texts.RASKLAD_RESULTS[randomized_value % len(texts.RASKLAD_RESULTS)]
+    result = result.format(PROJECT_NAME=project_name)
     return result
 
 
