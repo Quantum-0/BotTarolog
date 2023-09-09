@@ -2,8 +2,8 @@ import datetime
 import json
 import os
 import random
-from time import sleep
 from hashlib import md5 as taro
+from time import sleep
 
 from bot.bot import Bot
 from bot.handler import BotButtonCommandHandler, MessageHandler
@@ -11,14 +11,16 @@ from bot.handler import BotButtonCommandHandler, MessageHandler
 from tarolog import texts
 
 bot = Bot(token=os.environ.get("TOKEN"), api_url_base=os.environ.get("API_BASE_URL"), is_myteam=True)
-SALT = os.environ.get("SALT", 'SOME_DEFAULT_SALT_VALUE')
+SALT = os.environ.get("SALT", "SOME_DEFAULT_SALT_VALUE")
 user_state: dict[int, str] = {}
 
 
 def rasklad(project_name: str) -> str:
     result = random.choice(["Карты говорят мне", "Вижу по картам", "Карты подсказали мне"])
     result += ", что "
-    randomized_value = int(taro((SALT + project_name + str(datetime.date.today())).encode('utf-8', errors='replace')).hexdigest(), 16)
+    randomized_value = int(
+        taro((SALT + project_name + str(datetime.date.today())).encode("utf-8", errors="replace")).hexdigest(), 16
+    )
     result += texts.RASKLAD_RESULTS[randomized_value % len(texts.RASKLAD_RESULTS)]
     result = result.format(PROJECT_NAME=project_name)
     return result
@@ -44,16 +46,19 @@ def message_cb(bot, event):
 
     if user_state.get(event.message_author["userId"]) == "wait_project_name":
         project_name = event.text
-        bot.send_text(event.from_chat, random.choice(texts.MESSAGE_WAITING))
+        bot.send_text(event.from_chat, format_message(random.choice(texts.MESSAGE_WAITING)))
         sleep(1)
-        bot.send_text(event.from_chat, rasklad(project_name),
-                      inline_keyboard_markup="[{}]".format(json.dumps(texts.AFTER_RASKLAD_KEYBOARD)))
+        bot.send_text(
+            event.from_chat,
+            format_message(rasklad(project_name)),
+            inline_keyboard_markup="[{}]".format(json.dumps(texts.AFTER_RASKLAD_KEYBOARD)),
+        )
         del user_state[event.message_author["userId"]]
         return
 
     bot.send_text(
         chat_id=event.from_chat,
-        text=texts.MESSAGE_DEFAULT,
+        text=format_message(texts.MESSAGE_DEFAULT),
     )
 
 
