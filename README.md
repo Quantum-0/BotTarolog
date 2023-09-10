@@ -15,3 +15,8 @@
         URWelcome --> About: [About]
         URWelcome --> Rasklad: [One More]
 ```
+
+## TODO
+
+- sentry
+- metrics? list of service users, maybe count of messages?
