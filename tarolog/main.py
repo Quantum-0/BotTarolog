@@ -1,5 +1,6 @@
 import datetime
 import json
+import logging
 import os
 import random
 from hashlib import md5 as taro
@@ -13,6 +14,7 @@ from tarolog import texts
 bot = Bot(token=os.environ.get("TOKEN"), api_url_base=os.environ.get("API_BASE_URL"), is_myteam=True)
 SALT = os.environ.get("SALT", "SOME_DEFAULT_SALT_VALUE")
 user_state: dict[int, str] = {}
+logging.basicConfig(format='[%(levelname)s] <%(asctime)s>: %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
 
 
 def rasklad(project_name: str) -> str:
@@ -32,7 +34,7 @@ def format_message(message, event):
 
 
 def message_cb(bot, event):
-    print("MESSAGE", event)
+    logging.info('Got message: %s', event.data)
 
     if event.text in ["/start", "/help"]:
         if event.message_author["userId"] in user_state:
@@ -46,11 +48,11 @@ def message_cb(bot, event):
 
     if user_state.get(event.message_author["userId"]) == "wait_project_name":
         project_name = event.text
-        bot.send_text(event.from_chat, format_message(random.choice(texts.MESSAGE_WAITING)))
+        bot.send_text(event.from_chat, format_message(random.choice(texts.MESSAGE_WAITING), event))
         sleep(1)
         bot.send_text(
             event.from_chat,
-            format_message(rasklad(project_name)),
+            format_message(rasklad(project_name), event),
             inline_keyboard_markup="[{}]".format(json.dumps(texts.AFTER_RASKLAD_KEYBOARD)),
         )
         del user_state[event.message_author["userId"]]
@@ -58,12 +60,12 @@ def message_cb(bot, event):
 
     bot.send_text(
         chat_id=event.from_chat,
-        text=format_message(texts.MESSAGE_DEFAULT),
+        text=format_message(texts.MESSAGE_DEFAULT, event),
     )
 
 
 def buttons_answer_cb(bot, event):
-    print("INLINE_CALLBACK", event)
+    logging.info('Got inline kb callback: %s', event.data)
     match event.data["callbackData"]:
         case "about":
             bot.send_text(
@@ -90,9 +92,9 @@ bot.dispatcher.add_handler(BotButtonCommandHandler(callback=buttons_answer_cb))
 
 
 def start_bot():
-    print("Bot started")
+    logging.info('Bot started')
     bot.self_get()
-    print("Bot connected")
+    logging.info('Bot connected')
     bot.start_polling()
     bot.idle()
 
