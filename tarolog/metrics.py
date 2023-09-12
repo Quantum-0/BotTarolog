@@ -22,7 +22,7 @@ class Metrics(Base):
 Base.metadata.create_all(bind=engine)
 
 
-def update_user(username: str):
+def update_metrics(username: str):
     with Session(autoflush=False, bind=engine) as db:
         user: Metrics | None = db.get(Metrics, username)
         if user is None:

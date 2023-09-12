@@ -10,6 +10,7 @@ from bot.bot import Bot
 from bot.handler import BotButtonCommandHandler, MessageHandler
 
 from tarolog import texts
+from tarolog.metrics import update_metrics
 
 bot = Bot(token=os.environ.get("TOKEN"), api_url_base=os.environ.get("API_BASE_URL"), is_myteam=True)
 SALT = os.environ.get("SALT", "SOME_DEFAULT_SALT_VALUE")
@@ -19,6 +20,13 @@ logging.basicConfig(
     level=logging.INFO,
     datefmt="%Y-%m-%d %H:%M:%S",
 )
+
+
+def send_message(event, text, inline_keyboard=None):
+    formatted_text = format_message(text, event)
+    reply_to_chat = event.from_chat  # or event.data["message"]["chat"]["chatId"] ?
+    logging.info("Send reply: %s", formatted_text)
+    bot.send_text(reply_to_chat, formatted_text, inline_keyboard_markup=inline_keyboard)
 
 
 def rasklad(project_name: str) -> str:
@@ -37,58 +45,39 @@ def format_message(message, event):
     return message.format(**values)
 
 
-def message_cb(bot, event):
+def message_cb(_: Bot, event):
     logging.info("Got message: %s", event.data)
+
+    update_metrics(event.message_author["userId"])
 
     if event.text in ["/start", "/help"]:
         if event.message_author["userId"] in user_state:
             del user_state[event.message_author["userId"]]
-        bot.send_text(
-            chat_id=event.from_chat,
-            text=format_message(texts.HELLO_MESSAGE, event),
-            inline_keyboard_markup="[{}]".format(json.dumps(texts.HELLO_KEYBOARD)),
-        )
+        send_message(event, random.choice(texts.HELLO_MESSAGE), "[{}]".format(json.dumps(texts.HELLO_KEYBOARD)))
         return
 
     if user_state.get(event.message_author["userId"]) == "wait_project_name":
         project_name = event.text
-        bot.send_text(event.from_chat, format_message(random.choice(texts.MESSAGE_WAITING), event))
+        send_message(event, random.choice(texts.MESSAGE_WAITING))
         sleep(1)
-        bot.send_text(
-            event.from_chat,
-            format_message(rasklad(project_name), event),
-            inline_keyboard_markup="[{}]".format(json.dumps(texts.AFTER_RASKLAD_KEYBOARD)),
-        )
+        send_message(event, rasklad(project_name), "[{}]".format(json.dumps(texts.AFTER_RASKLAD_KEYBOARD)))
         del user_state[event.message_author["userId"]]
         return
 
-    bot.send_text(
-        chat_id=event.from_chat,
-        text=format_message(texts.MESSAGE_DEFAULT, event),
-    )
+    send_message(event, texts.MESSAGE_DEFAULT)
 
 
-def buttons_answer_cb(bot, event):
-    logging.info("Got inline kb callback: %s", event.data)
+def buttons_answer_cb(_: Bot, event):
+    logging.info("Got inline keyboard callback: %s", event.data)
+    update_metrics(event.message_author)
     match event.data["callbackData"]:
         case "about":
-            bot.send_text(
-                chat_id=event.data["message"]["chat"]["chatId"],
-                text=format_message(texts.ABOUT_MESSAGE, event),
-                inline_keyboard_markup="[{}]".format(json.dumps(texts.ABOUT_KEYBOARD)),
-            )
+            send_message(event, texts.ABOUT_MESSAGE, "[{}]".format(json.dumps(texts.ABOUT_KEYBOARD)))
         case "rasklad":
-            bot.send_text(
-                chat_id=event.data["message"]["chat"]["chatId"],
-                text=format_message(texts.ASK_PROJECT_NAME, event),
-            )
+            send_message(event, texts.ASK_PROJECT_NAME)
             user_state[event.message_author] = "wait_project_name"
         case "thanks":
-            bot.send_text(
-                chat_id=event.data["message"]["chat"]["chatId"],
-                text=format_message(texts.UR_WELCOME, event),
-                inline_keyboard_markup="[{}]".format(json.dumps(texts.ABOUT_KEYBOARD)),
-            )
+            send_message(event, texts.UR_WELCOME, "[{}]".format(json.dumps(texts.ABOUT_KEYBOARD)))
 
 
 bot.dispatcher.add_handler(MessageHandler(callback=message_cb))
