@@ -14,7 +14,11 @@ from tarolog import texts
 bot = Bot(token=os.environ.get("TOKEN"), api_url_base=os.environ.get("API_BASE_URL"), is_myteam=True)
 SALT = os.environ.get("SALT", "SOME_DEFAULT_SALT_VALUE")
 user_state: dict[int, str] = {}
-logging.basicConfig(format='[%(levelname)s] <%(asctime)s>: %(message)s', level=logging.INFO, datefmt='%Y-%m-%d %H:%M:%S')
+logging.basicConfig(
+    format="[%(levelname)s] <%(asctime)s>: %(message)s",
+    level=logging.INFO,
+    datefmt="%Y-%m-%d %H:%M:%S",
+)
 
 
 def rasklad(project_name: str) -> str:
@@ -34,7 +38,7 @@ def format_message(message, event):
 
 
 def message_cb(bot, event):
-    logging.info('Got message: %s', event.data)
+    logging.info("Got message: %s", event.data)
 
     if event.text in ["/start", "/help"]:
         if event.message_author["userId"] in user_state:
@@ -65,7 +69,7 @@ def message_cb(bot, event):
 
 
 def buttons_answer_cb(bot, event):
-    logging.info('Got inline kb callback: %s', event.data)
+    logging.info("Got inline kb callback: %s", event.data)
     match event.data["callbackData"]:
         case "about":
             bot.send_text(
@@ -92,9 +96,9 @@ bot.dispatcher.add_handler(BotButtonCommandHandler(callback=buttons_answer_cb))
 
 
 def start_bot():
-    logging.info('Bot started')
+    logging.info("Bot started")
     bot.self_get()
-    logging.info('Bot connected')
+    logging.info("Bot connected")
     bot.start_polling()
     bot.idle()
 
