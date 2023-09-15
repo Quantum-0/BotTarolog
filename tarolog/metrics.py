@@ -5,8 +5,12 @@ import os
 from sqlalchemy import Column, DateTime, Integer, String, create_engine
 from sqlalchemy.orm import DeclarativeBase, Session
 
-# engine = create_engine("sqlite:////metrics/metrics.db")
-engine = create_engine(f"postgresql://{os.getenv('PG_USER')}:{os.getenv('PG_PASS')}@{os.getenv('PG_HOST')}:{os.getenv('PG_PORT')}/{os.getenv('PG_DB')}")
+if os.getenv('DB_ENGINE') == 'sqlite':
+    engine = create_engine("sqlite:////metrics/metrics.db")
+elif os.getenv('DB_ENGINE') == 'postgresql':
+    engine = create_engine(f"postgresql://{os.getenv('PG_USER')}:{os.getenv('PG_PASS')}@{os.getenv('PG_HOST')}:{os.getenv('PG_PORT')}/{os.getenv('PG_DB')}")
+else:
+    raise ValueError('DB_ENGINE must be `sqlite` or `postgresql`')
 
 
 class Base(DeclarativeBase):
@@ -14,11 +18,11 @@ class Base(DeclarativeBase):
 
 
 class Metrics(Base):
-    __tablename__ = os.getenv('PG_METRICS_TABLE_NAME', 'tarolog_bot_metrics')
+    __tablename__ = os.getenv('PG_METRICS_TABLE_NAME', 'tarolog_bot.metrics')
 
     username = Column(String, primary_key=True)
-    interactions_count = Column(Integer, nullable=False, default=0)  # default = 0
-    first_action = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)  # default=datetime.datetime.utcnow
+    interactions_count = Column(Integer, nullable=False, default=0)
+    first_action = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
     last_action = Column(DateTime, nullable=False, default=datetime.datetime.utcnow)
 
 
