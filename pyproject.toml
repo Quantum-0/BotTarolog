@@ -15,6 +15,7 @@ dynamic = ["version"]
 dependencies = [
     "mailru-im-bot==0.0.21",
     "sqlalchemy>=2.0.20",
+    "psycopg2-binary>=2.9.7"
 ]
 
 [project.optional-dependencies]
