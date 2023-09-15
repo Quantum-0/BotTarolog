@@ -14,7 +14,7 @@ class Base(DeclarativeBase):
 
 
 class Metrics(Base):
-    __tablename__ = "metrics"
+    __tablename__ = os.getenv('PG_METRICS_TABLE_NAME', 'tarolog_bot_metrics')
 
     username = Column(String, primary_key=True)
     interactions_count = Column(Integer, nullable=False, default=0)  # default = 0
