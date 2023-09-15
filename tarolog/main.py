@@ -1,7 +1,6 @@
 import datetime
 import json
 import logging
-import os
 import random
 from hashlib import md5 as taro
 from time import sleep
@@ -11,13 +10,15 @@ from bot.handler import BotButtonCommandHandler, MessageHandler
 
 from tarolog import texts
 from tarolog.metrics import update_metrics
+from tarolog.settings import settings
 
-bot = Bot(token=os.environ.get("TOKEN"), api_url_base=os.environ.get("API_BASE_URL"), is_myteam=True)
-SALT = os.environ.get("SALT", "SOME_DEFAULT_SALT_VALUE")
+bot = Bot(token=settings.BOT_TOKEN, api_url_base=settings.API_BASE_URL, is_myteam=True)
+
 user_state: dict[int, str] = {}
+
 logging.basicConfig(
     format="[%(levelname)s] <%(asctime)s>: %(message)s",
-    level=logging.INFO,
+    level=logging.getLevelName(settings.Logging.LEVEL),
     datefmt="%Y-%m-%d %H:%M:%S",
 )
 
@@ -33,7 +34,8 @@ def rasklad(project_name: str) -> str:
     result = random.choice(["Карты говорят мне", "Вижу по картам", "Карты подсказали мне"])
     result += ", что "
     randomized_value = int(
-        taro((SALT + project_name + str(datetime.date.today())).encode("utf-8", errors="replace")).hexdigest(), 16
+        taro((settings.SALT + project_name + str(datetime.date.today())).encode("utf-8", errors="replace")).hexdigest(),
+        16,
     )
     result += texts.RASKLAD_RESULTS[randomized_value % len(texts.RASKLAD_RESULTS)]
     result = result.format(PROJECT_NAME=project_name)
