@@ -14,7 +14,7 @@ requires-python = ">=3.11"
 dynamic = ["version"]
 dependencies = [
     "mailru-im-bot==0.0.21",
-    "SQLAlchemy>=2.0.*"
+    "sqlalchemy>=2.0.20",
 ]
 
 [project.optional-dependencies]

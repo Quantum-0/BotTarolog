@@ -45,7 +45,7 @@ def format_message(message, event):
     return message.format(**values)
 
 
-def message_cb(_: Bot, event):
+def message_cb(bot: Bot, event):
     logging.info("Got message: %s", event.data)
 
     update_metrics(event.message_author["userId"])
@@ -53,7 +53,7 @@ def message_cb(_: Bot, event):
     if event.text in ["/start", "/help"]:
         if event.message_author["userId"] in user_state:
             del user_state[event.message_author["userId"]]
-        send_message(event, random.choice(texts.HELLO_MESSAGE), "[{}]".format(json.dumps(texts.HELLO_KEYBOARD)))
+        send_message(event, texts.HELLO_MESSAGE, "[{}]".format(json.dumps(texts.HELLO_KEYBOARD)))
         return
 
     if user_state.get(event.message_author["userId"]) == "wait_project_name":
@@ -67,7 +67,7 @@ def message_cb(_: Bot, event):
     send_message(event, texts.MESSAGE_DEFAULT)
 
 
-def buttons_answer_cb(_: Bot, event):
+def buttons_answer_cb(bot: Bot, event):
     logging.info("Got inline keyboard callback: %s", event.data)
     update_metrics(event.message_author)
     match event.data["callbackData"]:
