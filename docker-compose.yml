@@ -1,6 +1,6 @@
 services:
   bot:
-    container_name: 'TarologBot'
+    container_name: tarolog_bot
     build:
       context: .
       dockerfile: Dockerfile
