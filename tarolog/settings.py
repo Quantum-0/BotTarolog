@@ -19,7 +19,8 @@ class DatabaseSettings(BaseSettings):
     USER: str = ""
     PASS: str = ""
     DB: str = "postgres"
-    METRICS_TABLE_NAME: str = "tarolog_bot_metrics"
+    METRICS_TABLE_NAME: str = "tarolog_bot_users"
+    PROJECTS_TABLE_NAME: str = "tarolog_bot_projects"
 
     @property
     def DSN(self) -> str:

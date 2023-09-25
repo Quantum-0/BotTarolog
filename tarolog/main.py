@@ -9,7 +9,7 @@ from bot.bot import Bot
 from bot.handler import BotButtonCommandHandler, MessageHandler
 
 from tarolog import texts
-from tarolog.metrics import update_metrics
+from tarolog.metrics import update_metrics, update_project
 from tarolog.settings import settings
 
 bot = Bot(token=settings.BOT_TOKEN, api_url_base=settings.API_BASE_URL, is_myteam=True)
@@ -23,7 +23,7 @@ logging.basicConfig(
 )
 
 
-def send_message(event, text, inline_keyboard=None):
+def send_message(event, text: str, inline_keyboard=None) -> None:
     formatted_text = format_message(text, event)
     reply_to_chat = event.from_chat  # or event.data["message"]["chat"]["chatId"] ?
     logging.info("Send reply: %s", formatted_text)
@@ -39,15 +39,16 @@ def rasklad(project_name: str) -> str:
     )
     result += texts.RASKLAD_RESULTS[randomized_value % len(texts.RASKLAD_RESULTS)]
     result = result.format(PROJECT_NAME=project_name)
+    update_project(project_name)
     return result
 
 
-def format_message(message, event):
+def format_message(message: str, event) -> str:
     values = {"USERNAME": event.data["from"]["firstName"]}
     return message.format(**values)
 
 
-def message_cb(bot: Bot, event):
+def message_cb(bot: Bot, event) -> None:
     logging.info("Got message: %s", event.data)
 
     update_metrics(event.message_author["userId"])
@@ -69,7 +70,7 @@ def message_cb(bot: Bot, event):
     send_message(event, texts.MESSAGE_DEFAULT)
 
 
-def buttons_answer_cb(bot: Bot, event):
+def buttons_answer_cb(bot: Bot, event) -> None:
     logging.info("Got inline keyboard callback: %s", event.data)
     update_metrics(event.message_author)
     match event.data["callbackData"]:
@@ -86,7 +87,7 @@ bot.dispatcher.add_handler(MessageHandler(callback=message_cb))
 bot.dispatcher.add_handler(BotButtonCommandHandler(callback=buttons_answer_cb))
 
 
-def start_bot():
+def start_bot() -> None:
     logging.info("Bot started")
     bot.self_get()
     logging.info("Bot connected")
